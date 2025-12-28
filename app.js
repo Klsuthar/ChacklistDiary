@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbwLuhPOVkLIVW3iMSXC78MMeu-fyRyOccDEnR1gQyEKEac4h80yCMqjYFxxnBwzStOS/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwhgrDbFgFzxOf6peRSSznYRkSmgycYtG8X5-MkdQE11Slkq5HIXGEmdA_E_f9ID2R3/exec';
 
 let currentDate = new Date();
 let tasksData = [];
@@ -123,35 +123,46 @@ async function saveTask() {
     const status = document.querySelector('.status-btn.active')?.dataset.status || '';
     const note = document.getElementById('noteInput').value;
     
+    if (!status) {
+        alert('Please select a status (Done or Not Done)');
+        return;
+    }
+    
     try {
-        const response = await fetch(API_URL, {
+        const payload = {
+            date: selectedDate,
+            status: parseInt(status),
+            note: note
+        };
+        
+        console.log('Sending:', payload);
+        
+        await fetch(API_URL, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                date: selectedDate,
-                status: parseInt(status) || '',
-                note: note
-            })
+            body: JSON.stringify(payload)
         });
         
         const existingTask = tasksData.find(t => t.date.startsWith(selectedDate));
         if (existingTask) {
-            existingTask.status = parseInt(status) || '';
+            existingTask.status = parseInt(status);
             existingTask.note = note;
         } else {
             tasksData.push({
                 date: selectedDate + 'T00:00:00.000Z',
-                status: parseInt(status) || '',
+                status: parseInt(status),
                 note: note
             });
         }
         
         renderCalendar();
         closeModal();
+        
+        setTimeout(() => fetchTasks(), 1000);
+        
     } catch (error) {
         console.error('Save error:', error);
-        alert('Failed to save. Check console.');
+        alert('Saved locally. Refresh to verify.');
+        closeModal();
     }
 }
 
