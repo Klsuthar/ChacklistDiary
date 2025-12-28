@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbxpKE0yQdfV6WGRDYDXgku2TSXdBGNgC1okIUAG__XlRzzGbLNqjbYHL7biVwjMpAfe/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzobjZ3YvhkSkYGvXD389MveJ_Y-6cTX1e4diBbAkSabacv19PFACThIRO8Z9ZjhTY7/exec';
 
 let currentDate = new Date();
 let tasksData = [];
@@ -146,14 +146,12 @@ async function saveTask() {
         
         console.log('Sending to API:', payload);
         
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+        const url = `${API_URL}?date=${encodeURIComponent(selectedDate)}&status=${status}&note=${encodeURIComponent(note)}`;
+        
+        await fetch(url, {
+            method: 'GET',
             redirect: 'follow'
         });
-        
-        console.log('Response status:', response.status);
         
         const existingTaskIndex = tasksData.findIndex(t => {
             const taskDate = new Date(t.date);
