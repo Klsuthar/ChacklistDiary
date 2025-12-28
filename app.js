@@ -123,10 +123,36 @@ async function saveTask() {
     const status = document.querySelector('.status-btn.active')?.dataset.status || '';
     const note = document.getElementById('noteInput').value;
     
-    console.log('Saving:', { date: selectedDate, status, note });
-    alert('Note: This is read-only demo. To enable saving, implement POST endpoint in Google Apps Script.');
-    
-    closeModal();
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                date: selectedDate,
+                status: parseInt(status) || '',
+                note: note
+            })
+        });
+        
+        const existingTask = tasksData.find(t => t.date.startsWith(selectedDate));
+        if (existingTask) {
+            existingTask.status = parseInt(status) || '';
+            existingTask.note = note;
+        } else {
+            tasksData.push({
+                date: selectedDate + 'T00:00:00.000Z',
+                status: parseInt(status) || '',
+                note: note
+            });
+        }
+        
+        renderCalendar();
+        closeModal();
+    } catch (error) {
+        console.error('Save error:', error);
+        alert('Failed to save. Check console.');
+    }
 }
 
 document.getElementById('prevMonth').addEventListener('click', () => {
