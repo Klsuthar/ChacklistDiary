@@ -61,7 +61,12 @@ function createDayCell(day, month, year, isOtherMonth) {
     const adjustedYear = month < 0 ? year - 1 : month > 11 ? year + 1 : year;
     
     const dateStr = `${adjustedYear}-${String(adjustedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const task = tasksData.find(t => t.date.startsWith(dateStr));
+    
+    const task = tasksData.find(t => {
+        const taskDate = new Date(t.date);
+        const taskDateStr = `${taskDate.getFullYear()}-${String(taskDate.getMonth() + 1).padStart(2, '0')}-${String(taskDate.getDate()).padStart(2, '0')}`;
+        return taskDateStr === dateStr;
+    });
     
     const dayCell = document.createElement('div');
     dayCell.className = 'day day-cell';
