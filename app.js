@@ -126,12 +126,16 @@ function closeModal() {
 
 async function saveTask() {
     const status = document.querySelector('.status-btn.active')?.dataset.status || '';
-    const note = document.getElementById('noteInput').value;
+    const note = document.getElementById('noteInput').value.trim();
     
     if (!status) {
         alert('Please select a status (Done or Not Done)');
         return;
     }
+    
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
     
     try {
         const payload = {
@@ -140,20 +144,29 @@ async function saveTask() {
             note: note
         };
         
-        console.log('Sending:', payload);
+        console.log('Sending to API:', payload);
         
-        await fetch(API_URL, {
+        const response = await fetch(API_URL, {
             method: 'POST',
-            body: JSON.stringify(payload)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            redirect: 'follow'
         });
         
-        const existingTask = tasksData.find(t => t.date.startsWith(selectedDate));
-        if (existingTask) {
-            existingTask.status = parseInt(status);
-            existingTask.note = note;
+        console.log('Response status:', response.status);
+        
+        const existingTaskIndex = tasksData.findIndex(t => {
+            const taskDate = new Date(t.date);
+            const taskDateStr = `${taskDate.getFullYear()}-${String(taskDate.getMonth() + 1).padStart(2, '0')}-${String(taskDate.getDate()).padStart(2, '0')}`;
+            return taskDateStr === selectedDate;
+        });
+        
+        if (existingTaskIndex !== -1) {
+            tasksData[existingTaskIndex].status = parseInt(status);
+            tasksData[existingTaskIndex].note = note;
         } else {
             tasksData.push({
-                date: selectedDate + 'T00:00:00.000Z',
+                date: selectedDate + 'T18:30:00.000Z',
                 status: parseInt(status),
                 note: note
             });
@@ -162,12 +175,16 @@ async function saveTask() {
         renderCalendar();
         closeModal();
         
-        setTimeout(() => fetchTasks(), 1000);
+        saveBtn.textContent = 'Save';
+        saveBtn.disabled = false;
+        
+        setTimeout(() => fetchTasks(), 500);
         
     } catch (error) {
         console.error('Save error:', error);
-        alert('Saved locally. Refresh to verify.');
-        closeModal();
+        saveBtn.textContent = 'Save';
+        saveBtn.disabled = false;
+        alert('Error saving. Check console (F12) for details.');
     }
 }
 
