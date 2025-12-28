@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbwhgrDbFgFzxOf6peRSSznYRkSmgycYtG8X5-MkdQE11Slkq5HIXGEmdA_E_f9ID2R3/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxpKE0yQdfV6WGRDYDXgku2TSXdBGNgC1okIUAG__XlRzzGbLNqjbYHL7biVwjMpAfe/exec';
 
 let currentDate = new Date();
 let tasksData = [];
