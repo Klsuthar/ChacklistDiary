@@ -81,7 +81,7 @@ function createDayCell(day, month, year, isOtherMonth) {
     const adjustedYear = month < 0 ? year - 1 : month > 11 ? year + 1 : year;
     
     const dateStr = `${adjustedYear}-${String(adjustedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const task = tasksData.find(t => t.date === dateStr);
+    const task = tasksData.find(t => t.date.startsWith(dateStr));
     
     const dayCell = document.createElement('div');
     dayCell.className = 'day day-cell';
@@ -92,8 +92,13 @@ function createDayCell(day, month, year, isOtherMonth) {
     }
     
     if (task) {
-        dayCell.classList.add(`status-${task.status}`);
-        if (task.note) {
+        if (task.status === 1) {
+            dayCell.classList.add('status-1');
+        } else if (task.status === 0) {
+            dayCell.classList.add('status-0');
+        }
+        
+        if (task.note && task.note.trim()) {
             dayCell.classList.add('has-note');
             dayCell.addEventListener('click', () => showModal(dateStr, task.note));
         }
