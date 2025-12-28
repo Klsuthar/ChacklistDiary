@@ -1,0 +1,202 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(10px, 3vw, 20px);
+}
+
+.container {
+    background: white;
+    border-radius: clamp(10px, 3vw, 20px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    padding: clamp(15px, 4vw, 30px);
+    max-width: 800px;
+    width: 100%;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: clamp(18px, 4vw, 24px);
+    color: #333;
+    flex: 1;
+    text-align: center;
+}
+
+header button {
+    background: #667eea;
+    color: white;
+    border: none;
+    width: clamp(35px, 8vw, 40px);
+    height: clamp(35px, 8vw, 40px);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: clamp(16px, 3vw, 18px);
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+header button:hover {
+    background: #764ba2;
+    transform: scale(1.1);
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: clamp(5px, 1.5vw, 10px);
+}
+
+.day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: clamp(5px, 1.5vw, 10px);
+    font-weight: 500;
+    font-size: clamp(12px, 2.5vw, 16px);
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    min-height: 40px;
+}
+
+.day-header {
+    font-weight: 700;
+    color: #667eea;
+    cursor: default;
+}
+
+.day-cell {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.day-cell:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.day-cell.other-month {
+    opacity: 0.3;
+}
+
+.day-cell.status-1 {
+    background: #4ade80;
+    color: white;
+}
+
+.day-cell.status-0 {
+    background: #f87171;
+    color: white;
+}
+
+.day-cell.has-note::after {
+    content: '•';
+    position: absolute;
+    bottom: 2px;
+    font-size: clamp(16px, 3vw, 20px);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: white;
+    margin: 15% auto;
+    padding: clamp(20px, 5vw, 30px);
+    border-radius: 15px;
+    max-width: min(400px, 90vw);
+    width: 90%;
+    position: relative;
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #333;
+}
+
+#modalDate {
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+#modalNote {
+    color: #666;
+    line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+        align-items: flex-start;
+    }
+    
+    .container {
+        margin-top: 10px;
+    }
+    
+    header {
+        margin-bottom: 20px;
+    }
+    
+    .day-cell:hover {
+        transform: none;
+    }
+    
+    .modal-content {
+        margin: 30% auto;
+        width: 95%;
+    }
+}
+
+@media (max-width: 400px) {
+    .calendar {
+        gap: 3px;
+    }
+    
+    .day {
+        min-height: 35px;
+    }
+    
+    .day-header {
+        font-size: 11px;
+    }
+}
