@@ -7,14 +7,37 @@ const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'Jul
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 async function fetchTasks() {
+    const loadingMsg = document.createElement('div');
+    loadingMsg.textContent = 'Loading...';
+    loadingMsg.style.textAlign = 'center';
+    loadingMsg.style.padding = '20px';
+    document.getElementById('calendar').appendChild(loadingMsg);
+    
     try {
-        const response = await fetch(API_URL);
-        tasksData = await response.json();
-        console.log('Data fetched:', tasksData);
+        console.log('Fetching from:', API_URL);
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            redirect: 'follow'
+        });
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        const text = await response.text();
+        console.log('Raw response:', text);
+        
+        tasksData = JSON.parse(text);
+        console.log('Parsed data:', tasksData);
+        console.log('Total records:', tasksData.length);
+        
         renderCalendar();
     } catch (error) {
-        console.error('Error fetching tasks:', error);
-        alert('Failed to load data. Check console for details.');
+        console.error('Full error:', error);
+        document.getElementById('calendar').innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: red;">
+                Error: ${error.message}<br>
+                Check browser console (F12) for details
+            </div>
+        `;
     }
 }
 
