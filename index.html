@@ -7,19 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <button id="prevMonth">&lt;</button>
-            <h1 id="monthYear"></h1>
-            <button id="nextMonth">&gt;</button>
-        </header>
+    <header>
+        <h1 id="monthYear"></h1>
+    </header>
+    <div class="calendar-wrapper">
+        <button class="nav-btn left" id="prevMonth">&lt;</button>
         <div class="calendar" id="calendar"></div>
-        <div id="noteModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3 id="modalDate"></h3>
-                <p id="modalNote"></p>
+        <button class="nav-btn right" id="nextMonth">&gt;</button>
+    </div>
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalDate"></h3>
+            <div class="status-buttons">
+                <button class="status-btn" data-status="1">✓ Done</button>
+                <button class="status-btn" data-status="0">✗ Not Done</button>
             </div>
+            <textarea id="noteInput" placeholder="Add note..."></textarea>
+            <button id="saveBtn">Save</button>
         </div>
     </div>
     <script src="app.js"></script>

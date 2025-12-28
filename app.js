@@ -2,42 +2,22 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwLuhPOVkLIVW3iMSXC78MM
 
 let currentDate = new Date();
 let tasksData = [];
+let selectedDate = null;
+let touchStartX = 0;
+let touchEndX = 0;
 
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 async function fetchTasks() {
-    const loadingMsg = document.createElement('div');
-    loadingMsg.textContent = 'Loading...';
-    loadingMsg.style.textAlign = 'center';
-    loadingMsg.style.padding = '20px';
-    document.getElementById('calendar').appendChild(loadingMsg);
-    
     try {
-        console.log('Fetching from:', API_URL);
-        const response = await fetch(API_URL, {
-            method: 'GET',
-            redirect: 'follow'
-        });
-        console.log('Response status:', response.status);
-        console.log('Response ok:', response.ok);
-        
+        const response = await fetch(API_URL, { method: 'GET', redirect: 'follow' });
         const text = await response.text();
-        console.log('Raw response:', text);
-        
         tasksData = JSON.parse(text);
-        console.log('Parsed data:', tasksData);
-        console.log('Total records:', tasksData.length);
-        
         renderCalendar();
     } catch (error) {
-        console.error('Full error:', error);
-        document.getElementById('calendar').innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: red;">
-                Error: ${error.message}<br>
-                Check browser console (F12) for details
-            </div>
-        `;
+        console.error('Error:', error);
+        document.getElementById('calendar').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: white;">Failed to load data</div>';
     }
 }
 
@@ -100,22 +80,53 @@ function createDayCell(day, month, year, isOtherMonth) {
         
         if (task.note && task.note.trim()) {
             dayCell.classList.add('has-note');
-            dayCell.addEventListener('click', () => showModal(dateStr, task.note));
         }
     }
+    
+    dayCell.addEventListener('click', () => openEditModal(dateStr, task));
     
     document.getElementById('calendar').appendChild(dayCell);
 }
 
-function showModal(date, note) {
-    document.getElementById('modalDate').textContent = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { 
+function openEditModal(dateStr, task) {
+    selectedDate = dateStr;
+    const modal = document.getElementById('editModal');
+    
+    document.getElementById('modalDate').textContent = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric' 
     });
-    document.getElementById('modalNote').textContent = note;
-    document.getElementById('noteModal').style.display = 'block';
+    
+    document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
+    
+    if (task) {
+        if (task.status === 1) {
+            document.querySelector('[data-status="1"]').classList.add('active');
+        } else if (task.status === 0) {
+            document.querySelector('[data-status="0"]').classList.add('active');
+        }
+        document.getElementById('noteInput').value = task.note || '';
+    } else {
+        document.getElementById('noteInput').value = '';
+    }
+    
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+async function saveTask() {
+    const status = document.querySelector('.status-btn.active')?.dataset.status || '';
+    const note = document.getElementById('noteInput').value;
+    
+    console.log('Saving:', { date: selectedDate, status, note });
+    alert('Note: This is read-only demo. To enable saving, implement POST endpoint in Google Apps Script.');
+    
+    closeModal();
 }
 
 document.getElementById('prevMonth').addEventListener('click', () => {
@@ -128,14 +139,32 @@ document.getElementById('nextMonth').addEventListener('click', () => {
     renderCalendar();
 });
 
-document.querySelector('.close').addEventListener('click', () => {
-    document.getElementById('noteModal').style.display = 'none';
+document.querySelector('.close').addEventListener('click', closeModal);
+
+document.querySelectorAll('.status-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
 });
 
+document.getElementById('saveBtn').addEventListener('click', saveTask);
+
 window.addEventListener('click', (e) => {
-    const modal = document.getElementById('noteModal');
-    if (e.target === modal) {
-        modal.style.display = 'none';
+    const modal = document.getElementById('editModal');
+    if (e.target === modal) closeModal();
+});
+
+const calendar = document.querySelector('.calendar-wrapper');
+calendar.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+calendar.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    if (touchStartX - touchEndX > 50) {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    } else if (touchEndX - touchStartX > 50) {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
     }
 });
 
